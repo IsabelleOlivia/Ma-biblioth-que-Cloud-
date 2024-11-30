@@ -1,9 +1,10 @@
+import datetime
 import sqlite3
 from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# Création de notre DB
+
 def init_db():
     conn = sqlite3.connect('bibliotheque.db')
     c = conn.cursor()
