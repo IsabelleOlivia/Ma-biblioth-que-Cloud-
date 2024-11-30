@@ -23,5 +23,6 @@ class TestLibraryApp(unittest.TestCase):
         self.assertIn('Livre emprunté avec succès',
                        response.get_json()['message'])
 
+
 if __name__ == '__main__':
     unittest.main()

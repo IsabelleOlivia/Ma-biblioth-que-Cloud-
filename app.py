@@ -54,7 +54,9 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 init_db()
+
 
 # Route principale
 @app.route('/')
@@ -67,6 +69,7 @@ def index():
     lecteurs = c.fetchall()
     conn.close()
     return render_template('index.html', livres=livres, lecteurs=lecteurs)
+
 
 # Méthode pour emprunter un livre
 @app.route('/emprunter', methods=['POST'])
@@ -90,6 +93,7 @@ def emprunter_livre():
 
     return jsonify({'message': 'Livre emprunté avec succès'})
 
+
 @app.route('/retourner/<int:livre_id>', methods=['PUT'])
 def retourner_livre(livre_id):
     conn = sqlite3.connect('bibliotheque.db')
@@ -105,6 +109,7 @@ def retourner_livre(livre_id):
     conn.close()
 
     return jsonify({'message': 'Livre retourné avec succès'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
