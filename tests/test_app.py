@@ -21,7 +21,7 @@ class TestLibraryApp(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertIn('Livre emprunté avec succès',
-                       response.get_json()['message'])
+                      response.get_json()['message'])
 
 
 if __name__ == '__main__':
