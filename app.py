@@ -98,8 +98,7 @@ def retourner_livre(livre_id):
     date_retour = datetime.datetime.now().strftime('%Y-%m-%d')
     c.execute('''
         UPDATE emprunts
-        SET date_retour = ? WHERE id_livre = ?
-        AND date_retour IS NULL
+        SET date_retour = ? WHERE id_livre = ? AND date_retour IS NULL
     ''', (date_retour, livre_id))
 
     conn.commit()
@@ -109,4 +108,3 @@ def retourner_livre(livre_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-<
