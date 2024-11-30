@@ -110,6 +110,9 @@ def retourner_livre(livre_id):
 
     return jsonify({'message': 'Livre retourné avec succès'})
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3770caf11a357f0abf0f40fd90bab3716d7e59ed
 if __name__ == '__main__':
     app.run(debug=True)
