@@ -1,0 +1,110 @@
+name: CICD WITHOUT Docker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  
+
+      - name: Install dependencies
+        run: npm install
+
+     
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Run Unit Tests
+        run: npm test
+
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    needs: test  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget
+          TRIVY_VERSION=0.43.0
+          wget "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+          sudo dpkg -i "trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+          rm "trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+
+      - name: Run Trivy scan
+        run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .  
+
+      - name: Save scan artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-scan-results
+          path: trivy-report.json  
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build App without Docker
+    needs: security  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'  
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build application
+        run: |
+          # Example build step (adjust if needed for your application)
+          python setup.py install  # Replace with your build steps
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Heroku
+    needs: build  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Log in to Heroku
+        run: |
+          echo "${{ secrets.HEROKU_API_KEY }}" | heroku auth:token
+
+      - name: Deploy to Heroku
+        run: |
+          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+          git push heroku main  # Push the code to Heroku
+
